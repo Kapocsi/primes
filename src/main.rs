@@ -1,3 +1,5 @@
+use std::env;
+
 /// Returns a string of a progress bar to be printed to the command line
 /// get_progress_bar(5,10,10) -> |█████-----|
 fn get_progress_bar(current: i32, max: i32, progress_bar_len: i32) -> String {
@@ -34,5 +36,51 @@ fn get_prime_to_limit(n: i32, do_progress_bar: bool) -> Vec<i32> {
 }
 
 fn main() {
-    println!("Hello, world!");
+    const HELP_TEXT: &str = "This is command line interface to primes\n Usage: \r primes <i32 int> prints the prime numbers up the limit set \n Options:\n -npb or --no-progress-bar does the same thing as before but removes the progress bar this combined with the '>' can be used to send the numbers to a text file";
+
+    let args: Vec<String> = env::args().collect();
+
+    if args.contains(&"-h".to_string()) || args.contains(&"--help".to_string()) {
+        println!("{}", HELP_TEXT);
+        return;
+    }
+
+    match args.len() {
+        0 => {
+            panic!("Function Cannot have 0 arguments")
+        }
+        1 => {
+            println!("Cannot Run Without Args, use -h to see usage");
+        }
+        2 => match args[1].parse::<i32>() {
+            Ok(t) => {
+                // Starts on next line as the progress bar does not create a new line
+                let x = get_prime_to_limit(t, true);
+                println!("\nResults");
+                for i in x {
+                    println!("{}", i)
+                }
+            }
+            Err(_) => {
+                println!("Limit must be a integer (up to 2^32)")
+            }
+        },
+        _ => {
+            if args.contains(&"-npb".to_string()) | args.contains(&"--no-progress-bar".to_string())
+            {
+                match args[1].parse::<i32>() {
+                    Ok(t) => {
+                        for i in get_prime_to_limit(t, false) {
+                            println!("{}", i)
+                        }
+                    }
+                    Err(_) => {
+                        println!("Limit must be a integer (up to 2^32)")
+                    }
+                }
+            } else {
+                println!("Invalid Usage \n{}", HELP_TEXT)
+            }
+        }
+    }
 }
